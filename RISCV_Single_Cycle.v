@@ -1,32 +1,22 @@
 module RISCV_Single_Cycle(
     input clk,
     input rst_n,
-    output reg [31:0] PC_out_top,
-    output wire [31:0] Instruction_out_top
+    output reg [31:0] PC,
+    output wire [31:0] Inst
 );
-
-    // Program Counter
     wire [31:0] PC_next;
-
-    // Wires for instruction fields
     wire [4:0] rs1, rs2, rd;
     wire [2:0] funct3;
     wire [6:0] opcode, funct7;
-
-    // Immediate value
     wire [31:0] Imm;
 
-    // Register file wires
     wire [31:0] ReadData1, ReadData2, WriteData;
 
-    // ALU
     wire [31:0] ALU_in2, ALU_result;
     wire ALUZero;
 
-    // Data Memory
     wire [31:0] MemReadData;
 
-    // Control signals
     wire [1:0] ALUSrc;
     wire [3:0] ALUCtrl;
     wire Branch, MemRead, MemWrite, MemToReg;
@@ -35,28 +25,28 @@ module RISCV_Single_Cycle(
     // PC update
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n)
-            PC_out_top <= 32'b0;
+            PC <= 32'b0;
         else
-            PC_out_top <= PC_next;
+            PC <= PC_next;
     end
 
     // Instruction Memory (IMEM)
     IMEM IMEM_inst(
-        .addr(PC_out_top),
-        .Instruction(Instruction_out_top)
+        .addr(PC),
+        .Instruction(Inst)
     );
 
     // Instruction field decoding
-    assign opcode = Instruction_out_top[6:0];
-    assign rd     = Instruction_out_top[11:7];
-    assign funct3 = Instruction_out_top[14:12];
-    assign rs1    = Instruction_out_top[19:15];
-    assign rs2    = Instruction_out_top[24:20];
-    assign funct7 = Instruction_out_top[31:25];
+    assign opcode = Inst[6:0];
+    assign rd     = Inst[11:7];
+    assign funct3 = Inst[14:12];
+    assign rs1    = Inst[19:15];
+    assign rs2    = Inst[24:20];
+    assign funct7 = Inst[31:25];
 
     // Immediate generator
     Imm_Gen imm_gen(
-        .inst(Instruction_out_top),
+        .inst(Inst),
         .imm_out(Imm)
     );
 
@@ -123,6 +113,6 @@ module RISCV_Single_Cycle(
     );
 
     // Next PC logic
-    assign PC_next = (PCSel) ? PC_out_top + Imm : PC_out_top + 4;
+    assign PC_next = (PCSel) ? PC + Imm : PC + 4;
 
 endmodule

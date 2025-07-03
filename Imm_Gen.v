@@ -1,31 +1,31 @@
 module Imm_Gen (
-    input  [31:0] inst,
-    output reg [31:0] imm_out
+    input  [31:0] Inst,
+    output reg [31:0] Imm
 );
-    wire [6:0] opcode = inst[6:0];
+    wire [6:0] opcode = Inst[6:0];
 
     always @(*) begin
         case (opcode)
             7'b0000011, // I-type
             7'b0010011,
             7'b1100111:
-                imm_out = {{20{inst[31]}}, inst[31:20]};
+                Imm = {{20{Inst[31]}}, Inst[31:20]};
 
             7'b0100011: // S-type
-                imm_out = {{20{inst[31]}}, inst[31:25], inst[11:7]};
+                Imm = {{20{Inst[31]}}, Inst[31:25], Inst[11:7]};
 
             7'b1100011: // B-type
-                imm_out = {{19{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0};
+                Imm = {{19{Inst[31]}}, Inst[31], Inst[7], Inst[30:25], Inst[11:8], 1'b0};
 
             7'b0010111, // auipc
             7'b0110111: // lui
-                imm_out = {inst[31:12], 12'b0};
+                Imm = {Inst[31:12], 12'b0};
 
             7'b1101111: // jal
-                imm_out = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
+                Imm = {{11{Inst[31]}}, Inst[31], Inst[19:12], Inst[20], Inst[30:21], 1'b0};
 
             default:
-                imm_out = 32'b0;
+                Imm = 32'b0;
         endcase
     end
 endmodule
